@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useUi } from "@/components/ui/UiProvider";
-import { authApi, BackendNotConnectedError } from "@/lib/auth/api";
+import { ApiError, errorMessage } from "@/lib/auth/api";
+import { useAuth } from "@/lib/auth/auth-context";
+import { nextFromUrl, useRedirectIfSignedIn } from "@/lib/auth/hooks";
 import type { FieldErrors, LoginRequest } from "@/lib/auth/types";
 import { validateLogin } from "@/lib/auth/validation";
 import { Field, OAuthButtons, PasswordField, SubmitButton } from "./fields";
@@ -12,11 +15,14 @@ type LoginField = keyof LoginRequest;
 
 export function LoginForm() {
   const { toast } = useUi();
+  const { login } = useAuth();
+  const router = useRouter();
+  useRedirectIfSignedIn();
   const [values, setValues] = useState<LoginRequest>({ email: "", password: "", rememberMe: false });
   const [errors, setErrors] = useState<FieldErrors<LoginField>>({});
   const [pending, setPending] = useState(false);
 
-  const set = (k: "email" | "password") => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const set = (k: "email" | "password") => (e: ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     setValues((s) => ({ ...s, [k]: v }));
     if (errors[k]) setErrors((s) => ({ ...s, [k]: undefined }));
@@ -29,11 +35,13 @@ export function LoginForm() {
     if (Object.keys(errs).length) return;
     setPending(true);
     try {
-      // Same body as the backend's LoginRequest; the response carries the access token.
-      await authApi.login({ ...values, email: values.email.trim() });
+      await login(values.email.trim(), values.password, values.rememberMe);
+      router.replace(nextFromUrl());
     } catch (err) {
-      if (err instanceof BackendNotConnectedError) toast("Signing in arrives as soon as the backend is connected.", "info");
-      else throw err;
+      // 400: wrong credentials, locked account, unverified email — show it under the password.
+      if (err instanceof ApiError && err.status === 400) {
+        setErrors(err.fieldErrors ? (err.fieldErrors as FieldErrors<LoginField>) : { password: err.message });
+      } else toast(errorMessage(err), "err");
     } finally {
       setPending(false);
     }
@@ -47,8 +55,7 @@ export function LoginForm() {
           Pick up where you left off in your workspace.
         </p>
       </div>
-      <OAuthButtons rememberMe={values.rememberMe} />
-      <div className="auth-or">or with email</div>
+      <OAuthButtons />
       <Field
         id="li-email"
         label="Email"
@@ -73,11 +80,7 @@ export function LoginForm() {
         }
       />
       <label className="check">
-        <input
-          type="checkbox"
-          checked={values.rememberMe}
-          onChange={(e) => setValues((s) => ({ ...s, rememberMe: e.target.checked }))}
-        />
+        <input type="checkbox" checked={values.rememberMe} onChange={(e) => setValues((s) => ({ ...s, rememberMe: e.target.checked }))} />
         Keep me signed in for 30 days
       </label>
       <SubmitButton pending={pending} pendingLabel="Logging in…">

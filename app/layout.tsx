@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { Ambient } from "@/components/ui/Ambient";
 import { UiProvider } from "@/components/ui/UiProvider";
+import { AuthProvider } from "@/lib/auth/auth-context";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
@@ -49,8 +50,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <UiProvider>
-          <Ambient />
-          <div className="app-root">{children}</div>
+          <AuthProvider>
+            <Ambient />
+            <div className="app-root">{children}</div>
+          </AuthProvider>
         </UiProvider>
       </body>
     </html>
