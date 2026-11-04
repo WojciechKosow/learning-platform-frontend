@@ -1,0 +1,161 @@
+/* Codetta design system v2 — tokens & base. Ported from the clickable prototype. */
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0C0B10;
+  --bg-1: #121118;
+  --bg-2: #17161E;
+  --bg-3: #1E1D26;
+  --bg-4: #2A2933;
+  --glass: rgba(18, 17, 24, .72);
+  --line: rgba(255, 255, 255, .065);
+  --line-2: rgba(255, 255, 255, .10);
+  --line-3: rgba(255, 255, 255, .17);
+  --hi: rgba(255, 255, 255, .06);          /* top-edge highlight on surfaces */
+  --text: #EFEEF4;
+  --text-2: #A4A2B3;
+  --text-3: #6E6C7D;
+  --text-4: #4B4A57;
+
+  --act: #7EE0B5;
+  --act-2: #9DEBC8;
+  --act-ink: #04261A;
+  --act-soft: rgba(126, 224, 181, .12);
+  --act-line: rgba(126, 224, 181, .32);
+
+  --ai: #B3A6FF;
+  --ai-2: #CEC5FF;
+  --ai-soft: rgba(179, 166, 255, .12);
+  --ai-line: rgba(179, 166, 255, .30);
+
+  --ok: #7EE0B5;
+  --ok-soft: rgba(126, 224, 181, .12);
+  --warn: #F2B36B;
+  --warn-soft: rgba(242, 179, 107, .12);
+  --err: #FF7D8F;
+  --err-soft: rgba(255, 125, 143, .12);
+
+  --btn-bg: #F2F1F7;
+  --btn-ink: #0C0B10;
+  --btn-hover: #FFFFFF;
+
+  --ide-bg: #0B0A0F;
+  --ide-panel: #0F0E14;
+  --ide-chrome: #131219;
+
+  --spot: rgba(179, 166, 255, .10);
+  --spot-edge: rgba(179, 166, 255, .45);
+  --shadow-card: 0 1px 0 var(--hi) inset, 0 20px 40px -24px rgba(0, 0, 0, .6);
+  --shadow-pop: 0 24px 64px -12px rgba(0, 0, 0, .7), 0 0 0 1px var(--line-2);
+  --bloom-1: rgba(126, 224, 181, .16);
+  --bloom-2: rgba(179, 166, 255, .18);
+  --dot: 255, 255, 255;
+
+  /* syntax */
+  --tk-c: #605E72; --tk-s: #9EE6C2; --tk-k: #C3B5FF; --tk-l: #FFA48F; --tk-n: #F7C58B; --tk-f: #8CC8FF;
+  --tk-t: #7FE0D4; --tk-tag: #FF93A8; --tk-a: #F4D27A; --tk-p: #AEB6CF; --tk-o: #8FD4F0;
+}
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F4F3F7;
+  --bg-1: #FFFFFF;
+  --bg-2: #FAFAFC;
+  --bg-3: #F0EFF4;
+  --bg-4: #E4E3EA;
+  --glass: rgba(255, 255, 255, .78);
+  --line: rgba(23, 21, 31, .075);
+  --line-2: rgba(23, 21, 31, .115);
+  --line-3: rgba(23, 21, 31, .2);
+  --hi: rgba(255, 255, 255, .9);
+  --text: #17151F;
+  --text-2: #55536A;
+  --text-3: #8A889A;
+  --text-4: #B4B2C2;
+
+  --act: #0E9466;
+  --act-2: #0B7F57;
+  --act-ink: #FFFFFF;
+  --act-soft: rgba(14, 148, 102, .09);
+  --act-line: rgba(14, 148, 102, .3);
+
+  --ai: #6551E6;
+  --ai-2: #5240CC;
+  --ai-soft: rgba(101, 81, 230, .08);
+  --ai-line: rgba(101, 81, 230, .26);
+
+  --ok: #0E9466;
+  --ok-soft: rgba(14, 148, 102, .09);
+  --warn: #B8650C;
+  --warn-soft: rgba(184, 101, 12, .09);
+  --err: #D23A55;
+  --err-soft: rgba(210, 58, 85, .08);
+
+  --btn-bg: #17151F;
+  --btn-ink: #FFFFFF;
+  --btn-hover: #2C2938;
+
+  --ide-bg: #FFFFFF;
+  --ide-panel: #FAFAFC;
+  --ide-chrome: #F2F1F6;
+
+  --spot: rgba(101, 81, 230, .06);
+  --spot-edge: rgba(101, 81, 230, .35);
+  --shadow-card: 0 1px 2px rgba(23, 21, 31, .04), 0 12px 32px -18px rgba(23, 21, 31, .18);
+  --shadow-pop: 0 24px 64px -16px rgba(23, 21, 31, .28), 0 0 0 1px var(--line-2);
+  --bloom-1: rgba(14, 148, 102, .10);
+  --bloom-2: rgba(101, 81, 230, .12);
+  --dot: 23, 21, 31;
+
+  --tk-c: #9A98AA; --tk-s: #0E8A5C; --tk-k: #7A3FE0; --tk-l: #C2410C; --tk-n: #B45309; --tk-f: #1D5FD6;
+  --tk-t: #0E7490; --tk-tag: #C02651; --tk-a: #A16207; --tk-p: #475569; --tk-o: #0369A1;
+}
+:root {
+  --font: var(--font-instrument-sans), "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r-sm: 5px;
+  --r: 8px;
+  --r-lg: 14px;
+  --ease: cubic-bezier(.22, .8, .24, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+/* A stable scrollbar gutter keeps the page from shifting sideways when the
+   scrollbar appears/disappears (e.g. while a modal locks scrolling). */
+html { background: var(--bg); scrollbar-gutter: stable; scroll-padding-top: 80px; }
+@media (prefers-reduced-motion: no-preference) { html:not([data-motion="reduced"]) { scroll-behavior: smooth; } }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
+  transition: background-color .4s var(--ease);
+}
+/* svh (not vh/dvh): the height does not change while the mobile URL bar
+   collapses, so nothing below jumps while scrolling. */
+.app-root { min-height: 100vh; min-height: 100svh; position: relative; z-index: 1; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; padding: 0; }
+input, textarea, select { font: inherit; color: inherit; }
+img, svg { max-width: none; }
+::selection { background: var(--ai-soft); color: var(--text); }
+:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.02em; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); }
+.svg-i { display: inline-block; width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.svg-i.sm { width: 14px; height: 14px; }
+.svg-i.lg { width: 20px; height: 20px; }
+.muted { color: var(--text-2); }
+.dim { color: var(--text-3); }
+.hidden { display: none !important; }
+.num { font-variant-numeric: tabular-nums; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--line-3); background-clip: padding-box; border: 3px solid transparent; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }

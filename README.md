@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Codetta — frontend
 
-## Getting Started
+Next.js 16 (App Router) + React 19. Marketing site and auth screens for Codetta,
+ported from the clickable HTML prototype.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build && npm start
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Path | What |
+|------|------|
+| `/` | Landing page |
+| `/register` | Sign up: name (`displayName`), email, password + confirmation |
+| `/login` | Log in: email, password, "remember me" (`rememberMe`) |
+| `/forgot-password` | Request a reset link |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The auth forms validate on the client with the same rules as the backend and
+build the exact request bodies of `learning-app` (`RegisterRequest`,
+`LoginRequest`). **The backend is not connected yet**: `lib/auth/api.ts` holds
+stubs that show a notice. To connect it, replace those stubs following
+`learning-app/docs/FRONTEND_INTEGRATION.md`.
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/                 routes, root layout (fonts, theme, ambient background)
+app/styles/          design system: tokens, components, landing, auth
+components/ui/       Icon, ThemeToggle, Ambient, CodeBlock, toasts & modal
+components/landing/  landing sections (client components only where interactive)
+components/auth/     auth layout, fields, forms
+lib/                 landing content, icons, highlighter, motion helpers, auth types
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Layout stability
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Nothing that animates or changes on its own may change the page height:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Content that switches (pricing texts, estimator advice, authorship skills,
+  roadmap details, button labels) uses `.swap`: every variant sits in the same
+  grid cell and only `.on` is visible, so the box is always as tall as its
+  longest variant.
+- "How it works" has a fixed-height stage; tab descriptions open with
+  `grid-template-rows` (symmetric), not `max-height`.
+- Form error lines always reserve their height.
+- `min-height` uses `svh`, not `vh`/`dvh`, so the mobile URL bar can't resize sections.
+- `scrollbar-gutter: stable` prevents sideways jumps.
+- Numbers tween by writing to the DOM directly, not through React state.
