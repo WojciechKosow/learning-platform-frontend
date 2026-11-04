@@ -18,14 +18,39 @@ npm run lint
 |------|------|
 | `/` | Landing page |
 | `/register` | Sign up: name (`displayName`), email, password + confirmation |
-| `/login` | Log in: email, password, "remember me" (`rememberMe`) |
+| `/login` | Log in: email, password, "remember me" (`rememberMe`); honours `?next=` |
 | `/forgot-password` | Request a reset link |
+| `/reset-password?tokenId=&token=` | Set a new password (link from the email / backend log) |
+| `/dashboard` | Signed-in placeholder; anonymous visitors go to `/login` |
 
-The auth forms validate on the client with the same rules as the backend and
-build the exact request bodies of `learning-app` (`RegisterRequest`,
-`LoginRequest`). **The backend is not connected yet**: `lib/auth/api.ts` holds
-stubs that show a notice. To connect it, replace those stubs following
-`learning-app/docs/FRONTEND_INTEGRATION.md`.
+## Backend connection
+
+The browser only ever talks to this app's own origin. `next.config.ts`
+rewrites `/api/*` to the Spring backend (`learning-app`), so the httpOnly
+refresh-token cookie is first-party (works in Safari / with third-party cookies
+blocked) and the browser needs no CORS preflight.
+
+| Variable (frontend) | Default | |
+|---|---|---|
+| `BACKEND_URL` | `http://localhost:8080` in `next dev`, the Railway URL otherwise | Read at **build** time — redeploy after changing it. |
+
+The backend still needs the frontend origin, because the proxy forwards the
+browser's `Origin` header and Spring rejects unknown origins (`403 Invalid CORS
+request`):
+
+| Variable (backend) | Value |
+|---|---|
+| `APP_CORS_ALLOWED_ORIGINS` | `https://<frontend-domain>` (exact, no trailing slash; comma-separate several) |
+| `FRONTEND_URL` | `https://<frontend-domain>` (links in emails / logs) |
+
+Session model (`lib/auth/auth-context.tsx`): the access token is kept in memory
+and `localStorage`; on load `/me` is tried, then one `/refresh`. Protected calls
+go through `useAuth().authorized(token => …)`, which refreshes once on 401.
+Anonymous visitors make no auth calls at all.
+
+With `PRODUCTION_AUTH_SYSTEM=false` (no email/OAuth keys) registration signs
+you in straight away, OAuth buttons stay hidden (they follow
+`GET /api/auth/config`), and reset links are printed in the backend log.
 
 ## Structure
 

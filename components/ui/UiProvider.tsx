@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 
-type ToastKind = "ok" | "info";
+type ToastKind = "ok" | "info" | "err";
 type Toast = { id: number; msg: string; kind: ToastKind; leaving: boolean };
 
 export type ModalAction = { label: string; className?: string; onClick?: () => void | false };
@@ -63,7 +63,7 @@ export function UiProvider({ children }: { children: ReactNode }) {
         <div className="toasts" role="status" aria-live="polite">
           {toasts.map((t) => (
             <div key={t.id} className={`toast ${t.kind}`} style={t.leaving ? { opacity: 0, transition: "opacity .3s" } : undefined}>
-              <Icon name={t.kind === "info" ? "info" : "checkCircle"} />
+              <Icon name={t.kind === "info" ? "info" : t.kind === "err" ? "alertCircle" : "checkCircle"} />
               <span>{t.msg}</span>
             </div>
           ))}

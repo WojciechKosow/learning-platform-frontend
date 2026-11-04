@@ -4,15 +4,18 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { useUi } from "@/components/ui/UiProvider";
-import { authApi, BackendNotConnectedError } from "@/lib/auth/api";
+import { authApi, errorMessage } from "@/lib/auth/api";
+import { useAuthConfig } from "@/lib/auth/use-auth-config";
 import { validateEmail } from "@/lib/auth/validation";
 import { Field, SubmitButton } from "./fields";
 
 export function ForgotPasswordForm() {
   const { toast } = useUi();
+  const config = useAuthConfig();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string>();
   const [pending, setPending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -21,15 +24,35 @@ export function ForgotPasswordForm() {
     if (err) return;
     setPending(true);
     try {
-      // The backend always answers 200 here, whether or not the address exists.
+      // Always 200, whether or not the address exists (no account enumeration).
       await authApi.forgotPassword(email.trim());
+      setSent(true);
     } catch (e2) {
-      if (e2 instanceof BackendNotConnectedError) toast("Password reset arrives as soon as the backend is connected.", "info");
-      else throw e2;
+      toast(errorMessage(e2), "err");
     } finally {
       setPending(false);
     }
   };
+
+  if (sent)
+    return (
+      <div className="auth-form-in auth-done">
+        <span className="ico">
+          <Icon name="mail" className="lg" />
+        </span>
+        <h1>Check your email</h1>
+        <p className="muted">
+          If an account exists for <b style={{ color: "var(--text)" }}>{email.trim()}</b>, we sent a link to choose a new password. It expires
+          soon, so use it today.
+        </p>
+        {config && !config.passwordResetByEmail && (
+          <p className="form-note">Development mode: no email is sent. The reset link is printed in the backend log.</p>
+        )}
+        <Link className="btn btn-lg btn-block" href="/login">
+          Back to log in
+        </Link>
+      </div>
+    );
 
   return (
     <form className="auth-form-in" onSubmit={onSubmit} noValidate>

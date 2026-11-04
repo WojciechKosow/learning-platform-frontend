@@ -3,8 +3,8 @@
 import { useState, type InputHTMLAttributes, type ReactNode } from "react";
 import { GoogleG, Icon } from "@/components/ui/Icon";
 import { useUi } from "@/components/ui/UiProvider";
-import { BackendNotConnectedError, startOAuthLogin } from "@/lib/auth/api";
 import type { OAuthProviderId } from "@/lib/auth/types";
+import { useAuthConfig } from "@/lib/auth/use-auth-config";
 
 type FieldProps = {
   id: string;
@@ -95,35 +95,31 @@ const PROVIDERS: Record<OAuthProviderId, { label: string; icon: ReactNode }> = {
 };
 
 /**
- * "Continue with …" buttons. The backend supports Google and GitHub; once it is
- * connected, pass the ids from GET /api/auth/config (`oauthProviders`) so only
- * the configured providers show.
+ * "Continue with …" buttons plus the "or with email" divider, shown only for
+ * the providers the backend reports in GET /api/auth/config (`oauthProviders`;
+ * none while PRODUCTION_AUTH_SYSTEM=false). The OAuth redirect itself is not
+ * wired up yet.
  */
-export function OAuthButtons({
-  providers = ["google", "github"],
-  rememberMe,
-}: {
-  providers?: OAuthProviderId[];
-  rememberMe?: boolean;
-}) {
+export function OAuthButtons() {
   const { toast } = useUi();
+  const providers = useAuthConfig()?.oauthProviders ?? [];
   if (!providers.length) return null;
-  const start = async (p: OAuthProviderId) => {
-    try {
-      await startOAuthLogin(p, { rememberMe });
-    } catch (e) {
-      if (e instanceof BackendNotConnectedError) toast(`${PROVIDERS[p].label.replace("Continue with ", "")} sign-in arrives when the backend is connected.`, "info");
-      else throw e;
-    }
-  };
   return (
-    <div className="oauth-row">
-      {providers.map((p) => (
-        <button key={p} type="button" className="btn btn-google btn-lg btn-block" onClick={() => start(p)}>
-          {PROVIDERS[p].icon}
-          {PROVIDERS[p].label}
-        </button>
-      ))}
-    </div>
+    <>
+      <div className="oauth-row">
+        {providers.map((p) => (
+          <button
+            key={p}
+            type="button"
+            className="btn btn-google btn-lg btn-block"
+            onClick={() => toast(`${PROVIDERS[p].label.replace("Continue with ", "")} sign-in is coming soon. Use your email for now.`, "info")}
+          >
+            {PROVIDERS[p].icon}
+            {PROVIDERS[p].label}
+          </button>
+        ))}
+      </div>
+      <div className="auth-or">or with email</div>
+    </>
   );
 }

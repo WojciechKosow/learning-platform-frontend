@@ -139,6 +139,7 @@
 }
 .toast .svg-i { color: var(--ok); }
 .toast.info .svg-i { color: var(--ai); }
+.toast.err .svg-i { color: var(--err); }
 @keyframes toastIn { from { opacity: 0; transform: translateY(12px) scale(.96); } }
 .modal-back { position: fixed; inset: 0; background: rgba(6, 5, 10, .5); backdrop-filter: blur(6px); display: grid; place-items: center; z-index: 900; padding: 20px; animation: fadeIn .2s; }
 .modal { width: min(520px, 100%); background: var(--bg-1); border: 1px solid var(--line-2); border-radius: 16px; box-shadow: var(--shadow-pop); animation: popIn .4s var(--ease-out); }

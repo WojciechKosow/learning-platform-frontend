@@ -25,6 +25,7 @@ export interface User {
   emailVerified: boolean;
 }
 
+/** /login, /refresh. The refresh token is never in the body (httpOnly cookie). */
 export interface AuthResponse {
   token: string | null;
   refreshToken: null;
@@ -33,12 +34,22 @@ export interface AuthResponse {
 
 export interface RegisterResponse {
   message: string;
-  /** true → show "check your email"; false (development mode) → go to login. */
+  /** true → show "check your email"; false (development mode) → log in right away. */
   emailVerificationRequired: boolean;
   user: User;
 }
 
 export type OAuthProviderId = "google" | "github";
+
+/** GET /api/auth/config — what the login/register screens should offer. */
+export interface AuthConfig {
+  mode: "production" | "development";
+  emailVerificationRequired: boolean;
+  /** false in development: the reset link only appears in the backend log. */
+  passwordResetByEmail: boolean;
+  /** Providers with a working "Continue with …" button (empty in development). */
+  oauthProviders: OAuthProviderId[];
+}
 
 /** Field errors keyed by request field, the same shape as the backend's `errors`. */
 export type FieldErrors<T extends string> = Partial<Record<T, string>>;
