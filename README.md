@@ -21,8 +21,9 @@ npm run lint
 | `/login` | Log in: email, password, "remember me" (`rememberMe`); honours `?next=` |
 | `/forgot-password` | Request a reset link |
 | `/reset-password?tokenId=&token=` | Set a new password (link from the email / backend log) |
-| `/dashboard` | Signed-in home; anonymous visitors go to `/login`, new accounts go to `/onboarding` |
-| `/onboarding` | Welcome, then `about` → `technologies` → `experience` (intake, saved as you go) |
+| `/start` | Where sign-in lands: first-run intro, back to the unfinished onboarding step, or the dashboard |
+| `/dashboard` | Signed-in home (never redirects); offers to start / continue onboarding; anonymous visitors go to `/login` |
+| `/onboarding` | The first-run intro sequence, then `about` → `technologies` → `experience` (saved as you go) |
 | `/onboarding/interview` | The adaptive AI interview (free-text answers, “not sure”, skip, usage checks) |
 | `/onboarding/analyzing` | Generates the Knowledge Profile (one request, idempotent) |
 | `/onboarding/profile` | The Knowledge Profile: summary, skill map, details, roadmap input |
@@ -58,6 +59,19 @@ you in straight away, OAuth buttons stay hidden (they follow
 `GET /api/auth/config`), and reset links are printed in the backend log.
 
 ## Onboarding & interview
+
+**Where sign-in lands** (`/start`, decided by `landing` from `GET /api/onboarding`):
+
+- brand-new account → the intro (`/onboarding`), shown automatically only once
+  (recorded when the user clicks *Begin* or *Not now*);
+- onboarding unfinished → back to the step they left (intake step, interview, profile generation);
+- onboarding finished, or put off with *Finish later* / *Not now* → `/dashboard`, which offers
+  to continue. Continuing (or answering anything) clears the "later" choice, so the next
+  sign-in resumes again.
+
+Only sign-in goes through `/start`; opening `/dashboard` or any other page never
+redirects into onboarding. *Log out* doesn't add `?next=`, so the next sign-in
+lands through `/start` as well.
 
 All AI work happens on the backend (`learning-app`, see its
 `docs/INTERVIEW_ENGINE.md`): the browser only calls `/api/onboarding`,

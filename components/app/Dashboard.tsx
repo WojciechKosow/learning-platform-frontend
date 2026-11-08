@@ -8,14 +8,27 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useRequireAuth } from "@/lib/auth/hooks";
 import { onboardingApi } from "@/lib/onboarding/api";
 import type { OnboardingStatus } from "@/lib/onboarding/types";
+import { resumePath } from "@/components/onboarding/nav";
 
-const NEXT_STEP: Record<OnboardingStatus["stage"], { title: string; text: string; href: string; cta: string }> = {
-  INTAKE: { title: "Find your starting point", text: "A few questions and a short adaptive interview. About 10 minutes.", href: "/onboarding", cta: "Start onboarding" },
-  INTERVIEW: { title: "Your interview is in progress", text: "Pick up where you left off. Your answers are saved.", href: "/onboarding/interview", cta: "Continue the interview" },
-  PROFILE_PENDING: { title: "Your interview is done", text: "Build your Knowledge Profile from your answers.", href: "/onboarding/analyzing", cta: "Build my profile" },
-  PROFILE_READY: { title: "Your Knowledge Profile is ready", text: "Review it, tell us what we got wrong, and confirm it.", href: "/onboarding/profile", cta: "View my profile" },
-  CONFIRMED: { title: "Your Knowledge Profile is confirmed", text: "Your learning roadmap will be generated from it.", href: "/onboarding/profile", cta: "View my profile" },
-};
+type NextStep = { title: string; text: string; href: string; cta: string; resume?: boolean };
+
+/** What the dashboard offers, by onboarding stage. Opening the dashboard never redirects. */
+function nextStep(s: OnboardingStatus): NextStep {
+  switch (s.stage) {
+    case "INTERVIEW":
+      return { title: "Your interview is waiting", text: "Pick up where you left off. Your answers are saved.", href: "/onboarding/interview", cta: "Continue the interview", resume: true };
+    case "PROFILE_PENDING":
+      return { title: "Your interview is done", text: "Build your Knowledge Profile from your answers.", href: "/onboarding/analyzing", cta: "Build my profile", resume: true };
+    case "PROFILE_READY":
+      return { title: "Your Knowledge Profile is ready", text: "Review it, tell us what we got wrong, and confirm it.", href: "/onboarding/profile", cta: "View my profile" };
+    case "CONFIRMED":
+      return { title: "Your Knowledge Profile is confirmed", text: "Your learning roadmap will be generated from it.", href: "/onboarding/profile", cta: "View my profile" };
+    default:
+      return s.answers && (s.answers.about.duration || s.answers.about.level || s.answers.about.goal || s.answers.tech.selected.length || s.answers.experience.built)
+        ? { title: "Finish finding your starting point", text: "A few questions and a short adaptive interview. Your answers so far are saved.", href: resumePath(s, s.answers), cta: "Continue onboarding", resume: true }
+        : { title: "Find your starting point", text: "A few questions and a short adaptive interview. About 10 minutes.", href: s.introSeen ? "/onboarding/about" : "/onboarding", cta: "Start onboarding", resume: true };
+  }
+}
 
 /**
  * First signed-in screen. A placeholder until the real app (assessment,
@@ -31,20 +44,27 @@ export function Dashboard() {
     if (loading || !user) return;
     let cancelled = false;
     authorized((t) => onboardingApi.status(t))
-      .then((s) => {
-        if (cancelled) return;
-        // A brand-new account goes straight into onboarding.
-        if (s.stage === "INTAKE" && !s.answers) router.replace("/onboarding");
-        else setOnboarding(s);
-      })
+      .then((s) => !cancelled && setOnboarding(s))
       .catch(() => {
         /* the dashboard still works without it */
       });
     return () => {
       cancelled = true;
     };
-  }, [loading, user, authorized, router]);
-  const next = onboarding ? NEXT_STEP[onboarding.stage] : null;
+  }, [loading, user, authorized]);
+
+  // Continuing after "finish later": clear it, so the next sign-in resumes again.
+  const go = async (n: NextStep) => {
+    if (n.resume && onboarding?.deferred) {
+      try {
+        await authorized((t) => onboardingApi.progress(t, "RESUME"));
+      } catch {
+        /* navigation still works; the flag is cleared on the next save */
+      }
+    }
+    router.push(n.href);
+  };
+  const next = onboarding ? nextStep(onboarding) : null;
 
   const onLogout = async () => {
     setLeaving(true);
@@ -92,9 +112,9 @@ export function Dashboard() {
                 <div style={{ flex: 1 }}>
                   <b>{next.title}.</b> {next.text}
                 </div>
-                <Link className="btn btn-primary btn-sm" href={next.href}>
+                <button className="btn btn-primary btn-sm" type="button" onClick={() => void go(next)}>
                   {next.cta}
-                </Link>
+                </button>
               </div></div>
             ) : null}
             <div className="app-facts">

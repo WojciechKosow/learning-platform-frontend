@@ -23,6 +23,7 @@ export function resumePath(status: OnboardingStatus | null, answers: OnboardingA
       return "/onboarding/profile";
     default:
       if (!aboutDone(answers)) return "/onboarding/about";
+      if (!answers.tech.selected.length && !answers.tech.custom.length && !answers.experience.built) return "/onboarding/technologies";
       if (!expDone(answers)) return "/onboarding/experience";
       return "/onboarding/interview";
   }
