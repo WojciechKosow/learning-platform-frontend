@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     agentFeedback: true,
+    // The /api proxy's default 30 s timeout is shorter than an interview step
+    // can take (one model call, sometimes an escalation, at most one retry).
+    // The backend keeps its own per-call timeouts.
+    proxyTimeout: 180_000,
   },
   cacheComponents: true,
   partialPrefetching: true,
