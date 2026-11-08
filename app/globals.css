@@ -5,3 +5,4 @@
 @import "./styles/components.css" layer(components);
 @import "./styles/landing.css" layer(components);
 @import "./styles/auth.css" layer(components);
+@import "./styles/onboarding.css" layer(components);

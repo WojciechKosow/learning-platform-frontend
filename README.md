@@ -21,7 +21,12 @@ npm run lint
 | `/login` | Log in: email, password, "remember me" (`rememberMe`); honours `?next=` |
 | `/forgot-password` | Request a reset link |
 | `/reset-password?tokenId=&token=` | Set a new password (link from the email / backend log) |
-| `/dashboard` | Signed-in placeholder; anonymous visitors go to `/login` |
+| `/dashboard` | Signed-in home; anonymous visitors go to `/login`, new accounts go to `/onboarding` |
+| `/onboarding` | Welcome, then `about` → `technologies` → `experience` (intake, saved as you go) |
+| `/onboarding/interview` | The adaptive AI interview (free-text answers, “not sure”, skip, usage checks) |
+| `/onboarding/analyzing` | Generates the Knowledge Profile (one request, idempotent) |
+| `/onboarding/profile` | The Knowledge Profile: summary, skill map, details, roadmap input |
+| `/onboarding/review` | Agree / note / lower / flag per competency, then confirm |
 
 ## Backend connection
 
@@ -52,6 +57,25 @@ With `PRODUCTION_AUTH_SYSTEM=false` (no email/OAuth keys) registration signs
 you in straight away, OAuth buttons stay hidden (they follow
 `GET /api/auth/config`), and reset links are printed in the backend log.
 
+## Onboarding & interview
+
+All AI work happens on the backend (`learning-app`, see its
+`docs/INTERVIEW_ENGINE.md`): the browser only calls `/api/onboarding`,
+`/api/interview` and `/api/knowledge-profile` through the same-origin proxy, so
+no provider key, prompt or rubric ever reaches it. Generated questions and code
+are rendered as text (inline code via React nodes, code through the escaping
+highlighter).
+
+An interview step can take longer than the proxy's default 30 s (model call,
+sometimes an escalation), so `next.config.ts` sets `experimental.proxyTimeout`
+to 180 s. If a request is still cut off, the interview screen asks the server
+for the turn's state instead of sending the answer again; the backend evaluates
+each turn once.
+
+Screens follow the approved prototype (`app/styles/onboarding.css`, scoped under
+`.ob`). The optional GitHub/projects steps of the prototype are not part of this
+build.
+
 ## Structure
 
 ```
@@ -60,7 +84,9 @@ app/styles/          design system: tokens, components, landing, auth
 components/ui/       Icon, ThemeToggle, Ambient, CodeBlock, toasts & modal
 components/landing/  landing sections (client components only where interactive)
 components/auth/     auth layout, fields, forms
+components/onboarding/ onboarding screens, interview, Knowledge Profile, review
 lib/                 landing content, icons, highlighter, motion helpers, auth types
+lib/onboarding/      onboarding API client, types, options, shared state
 ```
 
 ## Layout stability
