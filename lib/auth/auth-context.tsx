@@ -46,6 +46,8 @@ interface AuthState {
    * protected /api/** call.
    */
   authorized: <T>(call: (token: string) => Promise<T>) => Promise<T>;
+  /** True right after an explicit logout (not an expired session): no "come back here" redirect. */
+  loggedOut: boolean;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -53,6 +55,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loggedOut, setLoggedOut] = useState(false);
   const tokenRef = useRef<string | null>(null);
   // Refresh tokens are single-use: concurrent 401s must share ONE refresh call,
   // or the second would replay a rotated token and end every session.
@@ -113,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string, rememberMe: boolean) => {
       const res = await authApi.login({ email, password, rememberMe });
       if (!res.token || !res.user) throw new ApiError("Login failed. Please try again.", 500);
+      setLoggedOut(false);
       applySession(res.token, res.user);
       return res.user;
     },
@@ -127,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // clear locally regardless
     }
+    setLoggedOut(true);
     applySession(null, null);
   }, [applySession]);
 
@@ -147,8 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<AuthState>(
-    () => ({ user, loading, login, register, logout, authorized }),
-    [user, loading, login, register, logout, authorized],
+    () => ({ user, loading, login, register, logout, authorized, loggedOut }),
+    [user, loading, login, register, logout, authorized, loggedOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -161,7 +166,7 @@ export function useAuth(): AuthState {
 }
 
 /** Only same-origin absolute paths — never an open redirect. */
-export function safeNextPath(next: string | null | undefined, fallback = "/dashboard"): string {
+export function safeNextPath(next: string | null | undefined, fallback = "/start"): string {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return fallback;
   return next;
 }

@@ -14,6 +14,9 @@ import type {
 
 export const onboardingApi = {
   status: (token: string) => request<OnboardingStatus>("/api/onboarding", { token }),
+  /** INTRO_SEEN (intro finished or skipped), DEFER ("finish later"), RESUME (continue after deferring). */
+  progress: (token: string, action: "INTRO_SEEN" | "DEFER" | "RESUME") =>
+    request<OnboardingStatus>("/api/onboarding/progress", { method: "POST", body: { action }, token }),
   save: (token: string, answers: OnboardingAnswers) =>
     request<OnboardingAnswers>("/api/onboarding", { method: "PUT", body: answers, token }),
 

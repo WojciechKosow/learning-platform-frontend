@@ -16,8 +16,14 @@ export interface OnboardingAnswers {
 
 export type OnboardingStage = "INTAKE" | "INTERVIEW" | "PROFILE_PENDING" | "PROFILE_READY" | "CONFIRMED";
 
+/** Where to take the user after sign-in (decided by the backend). */
+export type OnboardingLanding = "INTRO" | "CONTINUE" | "DASHBOARD";
+
 export interface OnboardingStatus {
   stage: OnboardingStage;
+  landing: OnboardingLanding;
+  introSeen: boolean;
+  deferred: boolean;
   answers: OnboardingAnswers | null;
   answersComplete: boolean;
   assessmentId: string | null;

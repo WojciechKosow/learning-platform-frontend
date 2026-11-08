@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useState, type ReactNode } from "react";
 import { BrandMark, Icon } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useUi } from "@/components/ui/UiProvider";
+import { onboardingApi } from "@/lib/onboarding/api";
+import { useOnboarding } from "@/lib/onboarding/context";
 import { highlightJs } from "@/lib/highlight";
 import type { IconName } from "@/lib/icons";
 import { CONF_LABEL, ST_CLASS, ST_COLOR, ST_LABEL, ST_RANK, type Option } from "@/lib/onboarding/options";
@@ -88,6 +92,7 @@ export function Shell({ route, reachable = [], children, full = false, wide = tr
                 Step {curIdx + 1} of {STAGES.length} · {STAGES[curIdx]?.full}
               </span>
             )}
+            <ExitButton route={route} />
             <ThemeToggle />
           </div>
           {route === "welcome" ? null : (
@@ -103,6 +108,41 @@ export function Shell({ route, reachable = [], children, full = false, wide = tr
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Leaving onboarding. Before the profile exists it is "Finish later": the
+ * choice is saved, so the next sign-in lands on the dashboard (which offers to
+ * continue) instead of pulling the user back in. Afterwards it is just a link.
+ */
+function ExitButton({ route }: { route: Route }) {
+  const { authorized, refresh } = useOnboarding();
+  const router = useRouter();
+  const { toast } = useUi();
+  const [busy, setBusy] = useState(false);
+  if (route === "profile" || route === "review") {
+    return (
+      <Link className="btn btn-ghost btn-sm" href="/dashboard">
+        Dashboard
+      </Link>
+    );
+  }
+  const later = async () => {
+    setBusy(true);
+    try {
+      await authorized((t) => onboardingApi.progress(t, "DEFER"));
+      void refresh();
+      router.push("/dashboard");
+    } catch {
+      toast("We couldn’t save that. Check your connection and try again.", "err");
+      setBusy(false);
+    }
+  };
+  return (
+    <button className="btn btn-ghost btn-sm" type="button" onClick={later} disabled={busy} title="Your progress is saved. Continue any time from the dashboard.">
+      Finish later
+    </button>
   );
 }
 

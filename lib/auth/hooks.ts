@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { safeNextPath, useAuth } from "./auth-context";
 
 /** `?next=` from the current URL, validated (read at call time — no Suspense needed). */
-export function nextFromUrl(fallback = "/dashboard"): string {
+export function nextFromUrl(fallback = "/start"): string {
   if (typeof window === "undefined") return fallback;
   return safeNextPath(new URLSearchParams(window.location.search).get("next"), fallback);
 }
@@ -25,8 +25,9 @@ export function useRequireAuth() {
   const router = useRouter();
   useEffect(() => {
     if (!auth.loading && !auth.user) {
-      router.replace(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      // After "Log out" the next sign-in should land normally (/start), not return to this page.
+      router.replace(auth.loggedOut ? "/login" : `/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
     }
-  }, [auth.loading, auth.user, router]);
+  }, [auth.loading, auth.user, auth.loggedOut, router]);
   return auth;
 }
