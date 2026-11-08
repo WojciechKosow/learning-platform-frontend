@@ -2,9 +2,13 @@
 /* ---------- Ambient background ---------- */
 .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .ambient canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.bloom { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; filter: blur(80px); opacity: 1; will-change: transform; }
-.bloom.b1 { background: radial-gradient(circle, var(--bloom-1), transparent 62%); left: -18vmax; top: -24vmax; animation: drift1 38s var(--ease) infinite alternate; }
-.bloom.b2 { background: radial-gradient(circle, var(--bloom-2), transparent 62%); right: -22vmax; top: 10vh; animation: drift2 46s var(--ease) infinite alternate; }
+/* No filter: blur() here. A blurred 60vmax layer is re-filtered on every frame
+   of the drift (and of anything animating above it), which dropped the
+   onboarding intro to ~12 fps on a throttled CPU. A gradient that fades over
+   the whole radius gives the same soft edge at no cost. */
+.bloom { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; opacity: 1; will-change: transform; }
+.bloom.b1 { background: radial-gradient(circle closest-side, var(--bloom-1), color-mix(in srgb, var(--bloom-1) 55%, transparent) 40%, color-mix(in srgb, var(--bloom-1) 18%, transparent) 72%, transparent); left: -18vmax; top: -24vmax; animation: drift1 38s var(--ease) infinite alternate; }
+.bloom.b2 { background: radial-gradient(circle closest-side, var(--bloom-2), color-mix(in srgb, var(--bloom-2) 55%, transparent) 40%, color-mix(in srgb, var(--bloom-2) 18%, transparent) 72%, transparent); right: -22vmax; top: 10vh; animation: drift2 46s var(--ease) infinite alternate; }
 @keyframes drift1 { to { transform: translate(18vmax, 14vmax) scale(1.15); } }
 @keyframes drift2 { to { transform: translate(-16vmax, 22vmax) scale(.9); } }
 [data-ambient="off"] .ambient { display: none; }

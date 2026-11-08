@@ -183,8 +183,14 @@ export function IntroSequence() {
             show(i + 1);
           }}
         >
-          {leaving !== null ? <div className="sc out" key={`out-${leaving}`}>{scenes[leaving].body}</div> : null}
-          <div className={`sc ${back ? "back" : ""} ${scenes[i].final ? "final" : ""}`} key={`in-${i}`}>{scenes[i].body}</div>
+          {/* Keyed by scene: the outgoing scene stays the same element and only gets "out",
+              so its text fades away instead of re-mounting and replaying its entrance. Sorted, so
+              React never moves an existing node (a move would restart its animations). */}
+          {(leaving !== null && leaving !== i ? [leaving, i].sort((a, b) => a - b) : [i]).map((k) => (
+            <div key={`scene-${k}`} className={`sc ${k !== i ? "out" : ""} ${k === i && back ? "back" : ""} ${scenes[k].final ? "final" : ""}`}>
+              {scenes[k].body}
+            </div>
+          ))}
         </div>
         <div className="seq-dots">
           {scenes.map((s, k) => (
