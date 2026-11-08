@@ -436,7 +436,7 @@
 
 /* ---------- Interview ---------- */
 .iv2 { display: grid; grid-template-columns: 300px minmax(0, 1fr); height: calc(100vh - 64px); }
-.iv-rail { border-right: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(14px); padding: 22px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.iv-rail { border-right: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 94%, transparent); padding: 22px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
 .rail-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; font-size: 12.5px; }
 .rail-title { font-weight: 600; color: var(--text); font-size: 13px; }
 .iv-rail .progress { margin-bottom: 14px; }
@@ -462,7 +462,7 @@
 .rail-note b { display: block; color: var(--text); font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
 .rail-foot { margin-top: auto; padding-top: 18px; display: flex; justify-content: space-between; }
 .iv-stage { overflow-y: auto; position: relative; scroll-behavior: auto; }
-.iv-bar { position: sticky; top: 0; z-index: 5; height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(14px); font-size: 13px; }
+.iv-bar { position: sticky; top: 0; z-index: 5; height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 94%, transparent); font-size: 13px; }
 .ivb-l { display: flex; align-items: center; gap: 8px; }
 .ivb-l .svg-i { color: var(--ai); }
 .iv-thread { padding: 36px 28px 140px; }
@@ -737,6 +737,9 @@ button.smap-row:hover .sm-go { color: var(--text); }
 }
 
 /* ---------- Additions for the real (non-prototype) flow ---------- */
+/* The interview rail and bar use a near-opaque background instead of
+   backdrop-filter: blurring the animated background behind a full-height
+   panel on every frame cost ~40 % of the frame rate while scrolling. */
 .ob .ob-loading { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 40svh; }
 .ob .ob-error { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--err-soft); color: var(--err); font-size: 13px; line-height: 1.5; }
 .ob .ob-small { font-size: 12px; }
@@ -748,8 +751,8 @@ button.smap-row:hover .sm-go { color: var(--text); }
 .ob .iv-intro .ob-error { margin-top: 24px; }
 
 /* ---------- First-run intro sequence (prototype v4) ---------- */
-@keyframes scIn { from { opacity: 0; transform: translateY(18px); filter: blur(10px); } }
-@keyframes scOut { to { opacity: 0; transform: translateY(-12px); filter: blur(8px); } }
+@keyframes scIn { from { opacity: 0; transform: translateY(18px); } }
+@keyframes scOut { to { opacity: 0; transform: translateY(-12px); } }
 @keyframes ladder { 0% { top: 115px; } 22% { top: 115px; } 40% { top: 69px; } 58% { top: 23px; } 72% { top: 23px; } 86%, 100% { top: 69px; } }
 @keyframes segFill { to { transform: scaleX(1); } }
 .ob {
