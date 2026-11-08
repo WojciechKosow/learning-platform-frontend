@@ -23,7 +23,7 @@ npm run lint
 | `/reset-password?tokenId=&token=` | Set a new password (link from the email / backend log) |
 | `/start` | Where sign-in lands: first-run intro, back to the unfinished onboarding step, or the dashboard |
 | `/dashboard` | Signed-in home (never redirects); offers to start / continue onboarding; anonymous visitors go to `/login` |
-| `/onboarding` | The first-run intro sequence, then `about` → `technologies` → `experience` (saved as you go) |
+| `/onboarding` | First-run welcome (“Welcome to Scrivetta.”), which flows into `about` → `technologies` → `experience` → interview |
 | `/onboarding/interview` | The adaptive AI interview (free-text answers, “not sure”, skip, usage checks) |
 | `/onboarding/analyzing` | Generates the Knowledge Profile (one request, idempotent) |
 | `/onboarding/profile` | The Knowledge Profile: summary, skill map, details, roadmap input |
@@ -62,10 +62,10 @@ you in straight away, OAuth buttons stay hidden (they follow
 
 **Where sign-in lands** (`/start`, decided by `landing` from `GET /api/onboarding`):
 
-- brand-new account → the intro (`/onboarding`), shown automatically only once
-  (recorded when the user clicks *Begin* or *Not now*);
+- brand-new account → the welcome (`/onboarding`), shown automatically only once
+  (recorded when it moves on to the first question, by itself after ~3 s or on click);
 - onboarding unfinished → back to the step they left (intake step, interview, profile generation);
-- onboarding finished, or put off with *Finish later* / *Not now* → `/dashboard`, which offers
+- onboarding finished, or put off with *Finish later* → `/dashboard`, which offers
   to continue. Continuing (or answering anything) clears the "later" choice, so the next
   sign-in resumes again.
 

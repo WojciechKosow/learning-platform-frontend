@@ -750,67 +750,21 @@ button.smap-row:hover .sm-go { color: var(--text); }
 .ob .msg-user { white-space: pre-wrap; overflow-wrap: anywhere; }
 .ob .iv-intro .ob-error { margin-top: 24px; }
 
-/* ---------- First-run intro sequence (prototype v4) ---------- */
-@keyframes scIn { from { opacity: 0; transform: translateY(18px); } }
-@keyframes scOut { to { opacity: 0; transform: translateY(-12px); } }
-@keyframes ladder { 0% { top: 115px; } 22% { top: 115px; } 40% { top: 69px; } 58% { top: 23px; } 72% { top: 23px; } 86%, 100% { top: 69px; } }
-@keyframes segFill { to { transform: scaleX(1); } }
+/* ---------- First-run welcome (once per account) ----------
+   Only opacity and transform are animated (no filter), so it stays on the
+   compositor and runs at full frame rate. */
+@keyframes welIn { from { opacity: 0; transform: translateY(18px); } }
+@keyframes welOut { to { opacity: 0; transform: translateY(-14px); } }
 .ob {
-.intro-seq { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; position: relative; outline: none; }
-.intro-seq::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 50% at 50% 45%, var(--bloom-2), transparent 70%); opacity: .7; }
-.seq-top { display: flex; justify-content: space-between; align-items: center; padding: 24px 28px; position: relative; z-index: 2; }
-.seq-skip { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-3); padding: 6px 10px; border-radius: 8px; transition: color .2s, background .2s; }
-.seq-skip:hover { color: var(--text); background: var(--bg-3); }
-.seq-stage { position: relative; cursor: pointer; }
-.sc { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 24px 6vh; gap: 0; }
-.sc.final { cursor: default; }
-.sc > * { animation: scIn 1.1s var(--ease-out) both; }
-.sc > *:nth-child(2) { animation-delay: .75s; }
-.sc > *:nth-child(3) { animation-delay: 1.5s; }
-.sc.back > * { animation-duration: .7s; animation-delay: 0s !important; }
-.sc.out { animation: scOut .55s var(--ease) forwards; pointer-events: none; }
-.sc-hero { font-size: clamp(64px, 11vw, 150px); line-height: .95; letter-spacing: -.065em; font-weight: 600; }
-.sc-hero .sc-w { display: block; animation: scIn 1.4s var(--ease-out) both; }
-.sc-hero .sc-to { display: block; font-size: .36em; letter-spacing: -.04em; color: var(--text-3); margin-top: .35em; animation: scIn 1.1s 1.3s var(--ease-out) both; }
-.sc-l { font-size: clamp(28px, 4.2vw, 56px); line-height: 1.12; letter-spacing: -.045em; font-weight: 600; color: var(--text-3); max-width: 960px; }
-.sc-l.sc-l2 { color: var(--text); margin-top: .2em; }
-.sc-em { background: linear-gradient(90deg, var(--act), var(--ai)); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
-.sc-note { margin-top: 30px; font-size: 16px; line-height: 1.6; color: var(--text-3); max-width: 560px; }
-.sc-chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 34px; }
-.sc-chips span { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 99px; border: 1px solid var(--line-2); background: var(--glass); backdrop-filter: blur(10px); font-size: 15px; color: var(--text); animation: scIn .9s var(--ease-out) both; }
-.sc-chips span:nth-child(1) { animation-delay: 1s; } .sc-chips span:nth-child(2) { animation-delay: 1.35s; } .sc-chips span:nth-child(3) { animation-delay: 1.7s; }
-.sc-chips .svg-i { color: var(--act); }
-.sc-chips + .sc-note { animation-delay: 2.3s; }
-.sc-ladder { position: relative; width: min(420px, 90vw); margin-top: 34px; text-align: left; }
-.lad-row { display: flex; align-items: center; gap: 14px; height: 46px; }
-.lad-row span { width: 110px; font-size: 13px; color: var(--text-3); font-family: var(--mono); }
-.lad-row i { flex: 1; height: 1px; background: var(--line-3); }
-.lad-dot { position: absolute; right: 18%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--ai); box-shadow: 0 0 0 6px var(--ai-soft), 0 0 30px var(--ai); animation: ladder 4.2s 1s var(--ease) both; top: 115px; }
-.sc-profile { width: min(460px, 90vw); margin-top: 32px; display: flex; flex-direction: column; gap: 10px; text-align: left; }
-.sp-row { display: grid; grid-template-columns: 1fr 150px; align-items: center; gap: 16px; font-size: 14px; color: var(--text-2); animation: scIn .8s var(--ease-out) both; animation-delay: calc(.9s + var(--d)); }
-.sp-bar { display: flex; gap: 3px; }
-.sp-bar i { flex: 1; height: 6px; border-radius: 2px; background: var(--bg-4); }
-.sp-bar.l2 i:nth-child(-n+2) { background: var(--warn); }
-.sp-bar.l3 i:nth-child(-n+3) { background: var(--ok); }
-.sp-bar.u i { background: transparent; border: 1px dashed var(--line-3); }
-.sp-bar i { transform-origin: left; animation: barGrow .6s var(--ease-out) both; animation-delay: calc(1.3s + var(--d)); }
-.sc-profile + .sc-note { animation-delay: 2.2s; }
-.sc-final { font-size: clamp(36px, 5.4vw, 72px); line-height: 1.04; letter-spacing: -.05em; font-weight: 600; }
-.sc-cta { margin-top: 36px; }
-.sc-cta .btn { height: 52px; padding: 0 28px; font-size: 16px; border-radius: 12px; }
-.seq-dots { display: flex; justify-content: center; gap: 6px; padding: 28px 24px 36px; position: relative; z-index: 2; }
-.seq-dots button { width: 34px; height: 14px; display: grid; align-items: center; }
-.seq-dots i { display: block; height: 3px; border-radius: 2px; background: var(--line-2); position: relative; overflow: hidden; }
-.seq-dots i::after { content: ""; position: absolute; inset: 0; background: var(--text); transform-origin: left; transform: scaleX(0); }
-.seq-dots .done i::after { transform: scaleX(1); }
-.seq-dots .on i::after { animation: segFill var(--dur, 3000ms) linear forwards; }
-
-.sc-l { color: var(--text); }
-.sc-l:has(+ .sc-l2) { color: var(--text-3); }
-.sc-later { margin-top: 10px; font-size: 13.5px; background: none; border: 0; cursor: pointer; }
-.sc-later[disabled] { opacity: .5; cursor: default; }
-@media (max-width: 640px) { .lad-row span { width: 92px; } }
+.welcome { min-height: 100svh; display: grid; grid-template-rows: auto 1fr; position: relative; outline: none; cursor: pointer; }
+.welcome::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 50% at 50% 45%, var(--bloom-2), transparent 70%); opacity: .7; }
+.welcome-top { padding: 24px 28px; position: relative; z-index: 2; }
+.welcome-stage { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 24px 8vh; position: relative; z-index: 1; }
+.welcome-stage.out { animation: welOut .6s var(--ease) forwards; }
+.welcome-hero { font-size: clamp(64px, 11vw, 150px); line-height: .95; letter-spacing: -.065em; font-weight: 600; }
+.welcome-hero .w1 { display: block; animation: welIn 1.4s var(--ease-out) both; }
+.welcome-hero .w2 { display: block; font-size: .36em; letter-spacing: -.04em; color: var(--text-3); margin-top: .35em; animation: welIn 1.1s 1s var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) {
-  .sc > *, .sc-hero .sc-w, .sc-hero .sc-to, .sc-chips span, .sp-row, .sp-bar i, .lad-dot { animation-duration: .01ms !important; animation-delay: 0s !important; }
+  .welcome-hero .w1, .welcome-hero .w2, .welcome-stage.out { animation-duration: .01ms !important; animation-delay: 0s !important; }
 }
 }
